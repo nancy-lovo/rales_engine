@@ -22,4 +22,46 @@ describe "Merchants API" do
     expect(response).to be_successful
     expect(merchant["data"]["id"].to_i).to eq(id)
   end
+
+  it "it can find first instance by id" do
+    id = create(:merchant).id
+
+    get "/api/v1/merchants/find?id=#{id}"
+
+    merchant = JSON.parse(response.body)
+    expect(response).to be_successful
+    expect(merchant["data"]["id"].to_i).to eq(id)
+  end
+
+  it "can find first instance by name" do
+    name = create(:merchant).name
+
+    get "/api/v1/merchants/find?name=#{name}"
+
+    merchant = JSON.parse(response.body)
+    expect(response).to be_successful
+    expect(merchant["data"]["attributes"]["name"]).to eq(name)
+  end
+
+  it "can find first instance by created_at" do
+    created_at = create(:merchant).created_at
+
+    get "/api/v1/merchants/find?created_at=#{created_at}"
+
+    merchant = JSON.parse(response.body)
+    expect(response).to be_successful
+
+    expect(merchant["data"]["attributes"]["created_at"]).to eq(created_at.strftime('%Y-%m-%dT%H:%M:%S.000Z'))
+  end
+
+  it "can find first instance by updated_at" do
+    updated_at = create(:merchant).updated_at
+
+    get "/api/v1/merchants/find?updated_at=#{updated_at}"
+
+    merchant = JSON.parse(response.body)
+    expect(response).to be_successful
+
+    expect(merchant["data"]["attributes"]["updated_at"]).to eq(updated_at.strftime('%Y-%m-%dT%H:%M:%S.000Z'))
+  end
 end
