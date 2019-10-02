@@ -30,7 +30,7 @@ describe "Customers API" do
 
     customer = JSON.parse(response.body)
     expect(response).to be_successful
-    expect(customer["data"]["id"].to_i).to eq(id)
+    expect(customer["data"]["attributes"]["id"].to_i).to eq(id)
   end
 
   it "can find first instance by first name" do
@@ -74,4 +74,16 @@ describe "Customers API" do
 
     expect(customer["data"]["attributes"]["updated_at"]).to eq(updated_at.strftime('%Y-%m-%dT%H:%M:%S.000Z'))
   end
+
+  it "can find all instances by id" do
+    id = create(:customer).id
+
+    get "/api/v1/customers/find_all?id=#{id}"
+
+    customer = JSON.parse(response.body)
+
+    expect(response).to be_successful
+    expect(customer["data"]["id"].to_i).to eq(id)
+  end
+
 end
