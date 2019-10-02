@@ -61,6 +61,17 @@ describe "Customers API" do
     customer = JSON.parse(response.body)
     expect(response).to be_successful
 
-    expect(customer["data"]["attributes"]["created_at"]).to eq(created_at)
+    expect(customer["data"]["attributes"]["created_at"]).to eq(created_at.strftime('%Y-%m-%dT%H:%M:%S.000Z'))
+  end
+
+  it "can find first instance by updated_at" do
+    updated_at = create(:customer).updated_at
+
+    get "/api/v1/customers/find?updated_at=#{updated_at}"
+
+    customer = JSON.parse(response.body)
+    expect(response).to be_successful
+
+    expect(customer["data"]["attributes"]["updated_at"]).to eq(updated_at.strftime('%Y-%m-%dT%H:%M:%S.000Z'))
   end
 end
