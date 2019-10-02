@@ -30,7 +30,7 @@ describe "Items API" do
 
     item = JSON.parse(response.body)
     expect(response).to be_successful
-    expect(item["data"]["id"].to_i).to eq(id)
+    expect(item["data"]["attributes"]["id"].to_i).to eq(id)
   end
 
   it "can find first instance by name" do

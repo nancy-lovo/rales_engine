@@ -30,7 +30,7 @@ describe "Invoices API" do
 
     invoice = JSON.parse(response.body)
     expect(response).to be_successful
-    expect(invoice["data"]["id"].to_i).to eq(id)
+    expect(invoice["data"]["attributes"]["id"].to_i).to eq(id)
   end
 
   it "can find first instance by customer id" do

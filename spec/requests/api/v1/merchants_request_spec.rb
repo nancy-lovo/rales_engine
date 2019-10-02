@@ -30,7 +30,7 @@ describe "Merchants API" do
 
     merchant = JSON.parse(response.body)
     expect(response).to be_successful
-    expect(merchant["data"]["id"].to_i).to eq(id)
+    expect(merchant["data"]["attributes"]["id"].to_i).to eq(id)
   end
 
   it "can find first instance by name" do

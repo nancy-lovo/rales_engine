@@ -32,7 +32,7 @@ describe "Transactions API" do
 
     transaction = JSON.parse(response.body)
     expect(response).to be_successful
-    expect(transaction["data"]["id"].to_i).to eq(id)
+    expect(transaction["data"]["attributes"]["id"].to_i).to eq(id)
   end
 
   it "can find first instance by invoice id" do
