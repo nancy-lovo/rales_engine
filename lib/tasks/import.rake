@@ -28,7 +28,7 @@ namespace :import do
     puts "Imported InvoiceItem csv file to db"
     CSV.foreach('./data/invoice_items.csv', headers:true) do |row|
       row_hash = row.to_h
-      row_hash['unit_price'].insert(-3, '.')
+      row_hash['unit_price'] = (row_hash['unit_price'].to_i / 100.to_f).to_s
 
       InvoiceItem.create(row_hash)
     end
