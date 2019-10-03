@@ -73,7 +73,8 @@ describe "Transactions API" do
     transaction = JSON.parse(response.body)
     expect(response).to be_successful
 
-    expect(transaction["data"]["attributes"]["created_at"]).to eq(created_at.strftime('%Y-%m-%dT%H:%M:%S.000Z'))
+    expected = Transaction.find(transaction["data"]["id"]).created_at
+    expect(expected).to eq(created_at)
   end
 
   it "can find first instance by updated_at" do
@@ -84,6 +85,7 @@ describe "Transactions API" do
     transaction = JSON.parse(response.body)
     expect(response).to be_successful
 
-    expect(transaction["data"]["attributes"]["updated_at"]).to eq(updated_at.strftime('%Y-%m-%dT%H:%M:%S.000Z'))
+    expected = Transaction.find(transaction["data"]["id"]).updated_at
+    expect(expected).to eq(updated_at)
   end
 end

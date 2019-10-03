@@ -81,7 +81,8 @@ describe "Invoice Items API" do
     invoice_item = JSON.parse(response.body)
     expect(response).to be_successful
 
-    expect(invoice_item["data"]["attributes"]["created_at"]).to eq(created_at.strftime('%Y-%m-%dT%H:%M:%S.000Z'))
+    expected = InvoiceItem.find(invoice_item["data"]["id"]).created_at
+    expect(expected).to eq(created_at)
   end
 
   it "can find first instance by updated_at" do
@@ -92,6 +93,7 @@ describe "Invoice Items API" do
     invoice_item = JSON.parse(response.body)
     expect(response).to be_successful
 
-    expect(invoice_item["data"]["attributes"]["updated_at"]).to eq(updated_at.strftime('%Y-%m-%dT%H:%M:%S.000Z'))
+    expected = InvoiceItem.find(invoice_item["data"]["id"]).updated_at
+    expect(expected).to eq(updated_at)
   end
 end
