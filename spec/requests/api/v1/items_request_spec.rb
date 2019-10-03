@@ -35,8 +35,15 @@ describe "Items API" do
 
   it "can find first instance by name" do
     name = create(:item).name
+    name_ci = name.downcase
 
     get "/api/v1/items/find?name=#{name}"
+
+    item = JSON.parse(response.body)
+    expect(response).to be_successful
+    expect(item["data"]["attributes"]["name"]).to eq(name)
+
+    get "/api/v1/items/find?name=#{name_ci}"
 
     item = JSON.parse(response.body)
     expect(response).to be_successful
@@ -45,8 +52,15 @@ describe "Items API" do
 
   it "can find first instance by description" do
     description = create(:item).description
+    description_ci = description.downcase
 
     get "/api/v1/items/find?description=#{description}"
+
+    item = JSON.parse(response.body)
+    expect(response).to be_successful
+    expect(item["data"]["attributes"]["description"]).to eq(description)
+
+    get "/api/v1/items/find?description=#{description_ci}"
 
     item = JSON.parse(response.body)
     expect(response).to be_successful
@@ -128,6 +142,17 @@ describe "Items API" do
 
     expected = item["data"].all? { |hash| hash["attributes"]["name"] == name }
     expect(expected).to eq(true)
+
+    get "/api/v1/items/find_all?name=#{name.upcase}"
+
+    item = JSON.parse(response.body)
+
+    expect(response).to be_successful
+
+    expect(item["data"].count).to eq(3)
+
+    expected = item["data"].all? { |hash| hash["attributes"]["name"] == name }
+    expect(expected).to eq(true)
   end
 
   it "can find all instances by description" do
@@ -137,6 +162,17 @@ describe "Items API" do
     bad_item = create(:item, description: "very bad")
 
     get "/api/v1/items/find_all?description=#{description}"
+
+    item = JSON.parse(response.body)
+
+    expect(response).to be_successful
+
+    expect(item["data"].count).to eq(3)
+
+    expected = item["data"].all? { |hash| hash["attributes"]["description"] == description }
+    expect(expected).to eq(true)
+
+    get "/api/v1/items/find_all?description=#{description.upcase}"
 
     item = JSON.parse(response.body)
 

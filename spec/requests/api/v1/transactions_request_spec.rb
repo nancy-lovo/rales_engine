@@ -57,8 +57,15 @@ describe "Transactions API" do
 
   it "can find first instance by result" do
     result = create(:transaction).result
+    result_ci = result.downcase
 
     get "/api/v1/transactions/find?result=#{result}"
+
+    transaction = JSON.parse(response.body)
+    expect(response).to be_successful
+    expect(transaction["data"]["attributes"]["result"]).to eq(result)
+
+    get "/api/v1/transactions/find?result=#{result_ci}"
 
     transaction = JSON.parse(response.body)
     expect(response).to be_successful
@@ -147,6 +154,17 @@ describe "Transactions API" do
     another_transaction = create(:transaction, result: "failed")
 
     get "/api/v1/transactions/find_all?result=#{result}"
+
+    invoice_item = JSON.parse(response.body)
+
+    expect(response).to be_successful
+
+    expect(invoice_item["data"].count).to eq(3)
+
+    expected = invoice_item["data"].all? { |hash| hash["attributes"]["result"] == result }
+    expect(expected).to eq(true)
+
+    get "/api/v1/transactions/find_all?result=#{result.upcase}"
 
     invoice_item = JSON.parse(response.body)
 
