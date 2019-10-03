@@ -96,4 +96,119 @@ describe "Invoice Items API" do
     expected = InvoiceItem.find(invoice_item["data"]["id"]).updated_at
     expect(expected).to eq(updated_at)
   end
+
+  it "can find all instances by id" do
+    id = create(:invoice_item).id
+
+    get "/api/v1/invoice_items/find_all?id=#{id}"
+
+    invoice_item = JSON.parse(response.body)
+
+    expect(response).to be_successful
+
+    expect(invoice_item["data"].count).to eq(1)
+
+    expected = invoice_item["data"].all? { |hash| hash["attributes"]["id"] == id }
+    expect(expected).to eq(true)
+  end
+
+  it "can find all instances by item id" do
+    item_id = 1
+    invoice_items = create_list(:invoice_item, 3)
+    InvoiceItem.update_all(item_id: 1)
+
+    get "/api/v1/invoice_items/find_all?item_id=#{item_id}"
+
+    invoice_item = JSON.parse(response.body)
+
+    expect(response).to be_successful
+
+    expect(invoice_item["data"].count).to eq(3)
+
+    expected = invoice_item["data"].all? { |hash| hash["attributes"]["item_id"] == item_id }
+    expect(expected).to eq(true)
+  end
+
+  it "can find all instances by invoice id" do
+    invoice_id = 1
+    invoice_items = create_list(:invoice_item, 3)
+    InvoiceItem.update_all(invoice_id: 1)
+
+    get "/api/v1/invoice_items/find_all?invoice_id=#{invoice_id}"
+
+    invoice_item = JSON.parse(response.body)
+
+    expect(response).to be_successful
+
+    expect(invoice_item["data"].count).to eq(3)
+
+    expected = invoice_item["data"].all? { |hash| hash["attributes"]["invoice_id"] == invoice_id }
+    expect(expected).to eq(true)
+  end
+
+  it "can find all instances by quantity" do
+    quantity = 30
+    invoice_items = create_list(:invoice_item, 3)
+    InvoiceItem.update_all(quantity: 30)
+
+    get "/api/v1/invoice_items/find_all?quantity=#{quantity}"
+
+    invoice_item = JSON.parse(response.body)
+
+    expect(response).to be_successful
+
+    expect(invoice_item["data"].count).to eq(3)
+
+    expected = invoice_item["data"].all? { |hash| hash["attributes"]["quantity"] == quantity }
+    expect(expected).to eq(true)
+  end
+
+  it "can find all instances by unit_price" do
+    unit_price = 5
+    invoice_items = create_list(:invoice_item, 3)
+    InvoiceItem.update_all(unit_price: 5)
+
+    get "/api/v1/invoice_items/find_all?unit_price=#{unit_price}"
+
+    invoice_item = JSON.parse(response.body)
+
+    expect(response).to be_successful
+
+    expect(invoice_item["data"].count).to eq(3)
+
+    expected = invoice_item["data"].all? { |hash| hash["attributes"]["unit_price"] == unit_price }
+    expect(expected).to eq(true)
+  end
+
+  it "can find all instances by created at" do
+    invoice_items = create_list(:invoice_item, 3)
+    created_at = invoice_items.first.created_at
+
+    get "/api/v1/invoice_items/find_all?created_at=#{created_at}"
+
+    invoice_item = JSON.parse(response.body)
+
+    expect(response).to be_successful
+
+    expect(invoice_item["data"].count).to eq(3)
+
+    expected = invoice_item["data"].all? { |hash| InvoiceItem.find(hash["id"]).created_at = created_at }
+    expect(expected).to eq(true)
+  end
+
+  it "can find all instances by updated at" do
+    invoice_items = create_list(:invoice_item, 3)
+    updated_at = invoice_items.first.updated_at
+
+    get "/api/v1/invoice_items/find_all?updated_at=#{updated_at}"
+
+    invoice_item = JSON.parse(response.body)
+
+    expect(response).to be_successful
+
+    expect(invoice_item["data"].count).to eq(3)
+
+    expected = invoice_item["data"].all? { |hash| InvoiceItem.find(hash["id"]).updated_at = updated_at }
+    expect(expected).to eq(true)
+  end
 end
