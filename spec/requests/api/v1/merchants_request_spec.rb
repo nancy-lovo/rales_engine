@@ -51,7 +51,8 @@ describe "Merchants API" do
     merchant = JSON.parse(response.body)
     expect(response).to be_successful
 
-    expect(merchant["data"]["attributes"]["created_at"]).to eq(created_at.strftime('%Y-%m-%dT%H:%M:%S.000Z'))
+    expected = Merchant.find(merchant["data"]["id"]).created_at
+    expect(expected).to eq(created_at)
   end
 
   it "can find first instance by updated_at" do
@@ -62,6 +63,72 @@ describe "Merchants API" do
     merchant = JSON.parse(response.body)
     expect(response).to be_successful
 
-    expect(merchant["data"]["attributes"]["updated_at"]).to eq(updated_at.strftime('%Y-%m-%dT%H:%M:%S.000Z'))
+    expected = Merchant.find(merchant["data"]["id"]).updated_at
+    expect(expected).to eq(updated_at)
+  end
+
+  it "can find all instances by id" do
+    id = create(:merchant).id
+
+    get "/api/v1/merchants/find_all?id=#{id}"
+
+    merchant = JSON.parse(response.body)
+
+    expect(response).to be_successful
+
+    expect(merchant["data"].count).to eq(1)
+
+    expected = merchant["data"].all? { |hash| hash["attributes"]["id"] == id }
+    expect(expected).to eq(true)
+  end
+
+  it "can find all instances by name" do
+    name = "Williamson Group"
+    merchants = create_list(:merchant, 3)
+    Merchant.update_all(name: name)
+    klein = create(:merchant, name: "Klein")
+
+    get "/api/v1/merchants/find_all?name=#{name}"
+
+    merchant = JSON.parse(response.body)
+
+    expect(response).to be_successful
+
+    expect(merchant["data"].count).to eq(3)
+
+    expected = merchant["data"].all? { |hash| hash["attributes"]["name"] == name }
+    expect(expected).to eq(true)
+  end
+
+  it "can find all instances by created at" do
+    merchants = create_list(:merchant, 3)
+    created_at = merchants.first.created_at
+
+    get "/api/v1/merchants/find_all?created_at=#{created_at}"
+
+    merchant = JSON.parse(response.body)
+
+    expect(response).to be_successful
+
+    expect(merchant["data"].count).to eq(3)
+
+    expected = merchant["data"].all? { |hash| Merchant.find(hash["id"]).created_at = created_at }
+    expect(expected).to eq(true)
+  end
+
+  it "can find all instances by updated at" do
+    merchants = create_list(:merchant, 3)
+    updated_at = merchants.first.updated_at
+
+    get "/api/v1/merchants/find_all?updated_at=#{updated_at}"
+
+    merchant = JSON.parse(response.body)
+
+    expect(response).to be_successful
+
+    expect(merchant["data"].count).to eq(3)
+
+    expected = merchant["data"].all? { |hash| Merchant.find(hash["id"]).updated_at = updated_at }
+    expect(expected).to eq(true)
   end
 end

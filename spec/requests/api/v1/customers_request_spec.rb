@@ -61,7 +61,8 @@ describe "Customers API" do
     customer = JSON.parse(response.body)
     expect(response).to be_successful
 
-    expect(customer["data"]["attributes"]["created_at"]).to eq(created_at.strftime('%Y-%m-%dT%H:%M:%S.000Z'))
+    expected = Customer.find(customer["data"]["id"]).created_at
+    expect(expected).to eq(created_at)
   end
 
   it "can find first instance by updated_at" do
@@ -72,7 +73,8 @@ describe "Customers API" do
     customer = JSON.parse(response.body)
     expect(response).to be_successful
 
-    expect(customer["data"]["attributes"]["updated_at"]).to eq(updated_at.strftime('%Y-%m-%dT%H:%M:%S.000Z'))
+    expected = Customer.find(customer["data"]["id"]).updated_at
+    expect(expected).to eq(updated_at)
   end
 
   it "can find all instances by id" do
@@ -83,7 +85,76 @@ describe "Customers API" do
     customer = JSON.parse(response.body)
 
     expect(response).to be_successful
-    expect(customer["data"]["id"].to_i).to eq(id)
+
+    expect(customer["data"].count).to eq(1)
+
+    expected = customer["data"].all? { |hash| hash["attributes"]["id"] == id }
+    expect(expected).to eq(true)
   end
 
+  it "can find all instances by first name" do
+    customer_1 = create(:customer, first_name: "Sam")
+    customer_2 = create(:customer, first_name: "Sam")
+    customer_3 = create(:customer, first_name: "Sam")
+
+    get "/api/v1/customers/find_all?first_name=Sam"
+
+    customer = JSON.parse(response.body)
+
+    expect(response).to be_successful
+
+    expect(customer["data"].count).to eq(3)
+
+    expected = customer["data"].all? { |hash| hash["attributes"]["first_name"] == "Sam" }
+    expect(expected).to eq(true)
+  end
+
+  it "can find all instances by last name" do
+    customer_1 = create(:customer, last_name: "Sam")
+    customer_2 = create(:customer, last_name: "Sam")
+    customer_3 = create(:customer, last_name: "Sam")
+
+    get "/api/v1/customers/find_all?last_name=Sam"
+
+    customer = JSON.parse(response.body)
+
+    expect(response).to be_successful
+
+    expect(customer["data"].count).to eq(3)
+
+    expected = customer["data"].all? { |hash| hash["attributes"]["last_name"] == "Sam" }
+    expect(expected).to eq(true)
+  end
+
+  it "can find all instances by created at" do
+    customers = create_list(:customer, 3)
+    created_at = customers.first.created_at
+
+    get "/api/v1/customers/find_all?created_at=#{created_at}"
+
+    customer = JSON.parse(response.body)
+
+    expect(response).to be_successful
+
+    expect(customer["data"].count).to eq(3)
+
+    expected = customer["data"].all? { |hash| Customer.find(hash["id"]).created_at = created_at }
+    expect(expected).to eq(true)
+  end
+
+  it "can find all instances by updated at" do
+    customers = create_list(:customer, 3)
+    updated_at = customers.first.updated_at
+
+    get "/api/v1/customers/find_all?updated_at=#{updated_at}"
+
+    customer = JSON.parse(response.body)
+
+    expect(response).to be_successful
+
+    expect(customer["data"].count).to eq(3)
+
+    expected = customer["data"].all? { |hash| Customer.find(hash["id"]).updated_at = updated_at }
+    expect(expected).to eq(true)
+  end
 end

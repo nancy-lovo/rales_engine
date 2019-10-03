@@ -73,7 +73,8 @@ describe "Transactions API" do
     transaction = JSON.parse(response.body)
     expect(response).to be_successful
 
-    expect(transaction["data"]["attributes"]["created_at"]).to eq(created_at.strftime('%Y-%m-%dT%H:%M:%S.000Z'))
+    expected = Transaction.find(transaction["data"]["id"]).created_at
+    expect(expected).to eq(created_at)
   end
 
   it "can find first instance by updated_at" do
@@ -84,6 +85,109 @@ describe "Transactions API" do
     transaction = JSON.parse(response.body)
     expect(response).to be_successful
 
-    expect(transaction["data"]["attributes"]["updated_at"]).to eq(updated_at.strftime('%Y-%m-%dT%H:%M:%S.000Z'))
+    expected = Transaction.find(transaction["data"]["id"]).updated_at
+    expect(expected).to eq(updated_at)
+  end
+
+  it "can find all instances by id" do
+    id = create(:transaction).id
+
+    get "/api/v1/transactions/find_all?id=#{id}"
+
+    transaction = JSON.parse(response.body)
+
+    expect(response).to be_successful
+
+    expect(transaction["data"].count).to eq(1)
+
+    expected = transaction["data"].all? { |hash| hash["attributes"]["id"] == id }
+    expect(expected).to eq(true)
+  end
+
+  it "can find all instances by invoice id" do
+    invoice_id = 1
+    transactions = create_list(:transaction, 3)
+    Transaction.update_all(invoice_id: invoice_id)
+    another_transaction = create(:transaction)
+
+    get "/api/v1/transactions/find_all?invoice_id=#{invoice_id}"
+
+    invoice_item = JSON.parse(response.body)
+
+    expect(response).to be_successful
+
+    expect(invoice_item["data"].count).to eq(3)
+
+    expected = invoice_item["data"].all? { |hash| hash["attributes"]["invoice_id"] == invoice_id }
+    expect(expected).to eq(true)
+  end
+
+  it "can find all instances by credit_card_number" do
+    credit_card_number = "4330934842024570"
+    transactions = create_list(:transaction, 3)
+    Transaction.update_all(credit_card_number: credit_card_number)
+    another_transaction = create(:transaction)
+
+    get "/api/v1/transactions/find_all?credit_card_number=#{credit_card_number}"
+
+    invoice_item = JSON.parse(response.body)
+
+    expect(response).to be_successful
+
+    expect(invoice_item["data"].count).to eq(3)
+
+    expected = invoice_item["data"].all? { |hash| hash["attributes"]["credit_card_number"] == credit_card_number }
+    expect(expected).to eq(true)
+  end
+
+  it "can find all instances by result" do
+    result = "success"
+    transactions = create_list(:transaction, 3)
+    Transaction.update_all(result: result)
+    another_transaction = create(:transaction, result: "failed")
+
+    get "/api/v1/transactions/find_all?result=#{result}"
+
+    invoice_item = JSON.parse(response.body)
+
+    expect(response).to be_successful
+
+    expect(invoice_item["data"].count).to eq(3)
+
+    expected = invoice_item["data"].all? { |hash| hash["attributes"]["result"] == result }
+    expect(expected).to eq(true)
+  end
+
+
+  it "can find all instances by created at" do
+    transactions = create_list(:transaction, 3)
+    created_at = transactions.first.created_at
+
+    get "/api/v1/transactions/find_all?created_at=#{created_at}"
+
+    transaction = JSON.parse(response.body)
+
+    expect(response).to be_successful
+
+    expect(transaction["data"].count).to eq(3)
+
+    expected = transaction["data"].all? { |hash| Transaction.find(hash["id"]).created_at = created_at }
+    expect(expected).to eq(true)
+  end
+
+  it "can find all instances by updated at" do
+    transactions = create_list(:transaction, 3)
+    updated_at = transactions.first.updated_at
+
+    get "/api/v1/transactions/find_all?updated_at=#{updated_at}"
+
+    transaction = JSON.parse(response.body)
+
+    expect(response).to be_successful
+
+    expect(transaction["data"].count).to eq(3)
+
+    expected = transaction["data"].all? { |hash| Transaction.find(hash["id"]).updated_at = updated_at }
+    expect(expected).to eq(true)
   end
 end
