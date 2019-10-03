@@ -1,5 +1,5 @@
 class Item < ApplicationRecord
-  validates_presence_of :name, :description, :merchant_id, :created_at, :updated_at
+  validates_presence_of :name, :description, :merchant_id
   validates_numericality_of :unit_price, greater_than_or_equal_to: 0, only_integer: true
 
   has_many :invoice_items
