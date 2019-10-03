@@ -27,7 +27,10 @@ namespace :import do
   task invoice_item: :environment do
     puts "Imported InvoiceItem csv file to db"
     CSV.foreach('./data/invoice_items.csv', headers:true) do |row|
-      InvoiceItem.create(row.to_h)
+      row_hash = row.to_h
+      row_hash['unit_price'].insert(-3, '.')
+
+      InvoiceItem.create(row_hash)
     end
   end
 
