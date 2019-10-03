@@ -35,8 +35,15 @@ describe "Merchants API" do
 
   it "can find first instance by name" do
     name = create(:merchant).name
+    name_ci = name.downcase
 
     get "/api/v1/merchants/find?name=#{name}"
+
+    merchant = JSON.parse(response.body)
+    expect(response).to be_successful
+    expect(merchant["data"]["attributes"]["name"]).to eq(name)
+
+    get "/api/v1/merchants/find?name=#{name_ci}"
 
     merchant = JSON.parse(response.body)
     expect(response).to be_successful
@@ -89,6 +96,17 @@ describe "Merchants API" do
     klein = create(:merchant, name: "Klein")
 
     get "/api/v1/merchants/find_all?name=#{name}"
+
+    merchant = JSON.parse(response.body)
+
+    expect(response).to be_successful
+
+    expect(merchant["data"].count).to eq(3)
+
+    expected = merchant["data"].all? { |hash| hash["attributes"]["name"] == name }
+    expect(expected).to eq(true)
+
+    get "/api/v1/merchants/find_all?name=#{name.downcase}"
 
     merchant = JSON.parse(response.body)
 

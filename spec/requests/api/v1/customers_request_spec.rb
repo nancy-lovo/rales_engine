@@ -33,10 +33,17 @@ describe "Customers API" do
     expect(customer["data"]["attributes"]["id"].to_i).to eq(id)
   end
 
-  it "can find first instance by first name" do
+  it "can find first instance by first name, case-insensitive" do
     first_name = create(:customer).first_name
+    first_name_ci = first_name.downcase
 
     get "/api/v1/customers/find?first_name=#{first_name}"
+
+    customer = JSON.parse(response.body)
+    expect(response).to be_successful
+    expect(customer["data"]["attributes"]["first_name"]).to eq(first_name)
+
+    get "/api/v1/customers/find?first_name=#{first_name_ci}"
 
     customer = JSON.parse(response.body)
     expect(response).to be_successful
@@ -45,8 +52,15 @@ describe "Customers API" do
 
   it "can find first instance by last name" do
     last_name = create(:customer).last_name
+    last_name_ci = last_name.downcase
 
     get "/api/v1/customers/find?last_name=#{last_name}"
+
+    customer = JSON.parse(response.body)
+    expect(response).to be_successful
+    expect(customer["data"]["attributes"]["last_name"]).to eq(last_name)
+
+    get "/api/v1/customers/find?last_name=#{last_name_ci}"
 
     customer = JSON.parse(response.body)
     expect(response).to be_successful
@@ -107,6 +121,17 @@ describe "Customers API" do
 
     expected = customer["data"].all? { |hash| hash["attributes"]["first_name"] == "Sam" }
     expect(expected).to eq(true)
+
+    get "/api/v1/customers/find_all?first_name=sam"
+
+    customer = JSON.parse(response.body)
+
+    expect(response).to be_successful
+
+    expect(customer["data"].count).to eq(3)
+
+    expected = customer["data"].all? { |hash| hash["attributes"]["first_name"] == "Sam" }
+    expect(expected).to eq(true)
   end
 
   it "can find all instances by last name" do
@@ -115,6 +140,17 @@ describe "Customers API" do
     customer_3 = create(:customer, last_name: "Sam")
 
     get "/api/v1/customers/find_all?last_name=Sam"
+
+    customer = JSON.parse(response.body)
+
+    expect(response).to be_successful
+
+    expect(customer["data"].count).to eq(3)
+
+    expected = customer["data"].all? { |hash| hash["attributes"]["last_name"] == "Sam" }
+    expect(expected).to eq(true)
+
+    get "/api/v1/customers/find_all?last_name=sam"
 
     customer = JSON.parse(response.body)
 
