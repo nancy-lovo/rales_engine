@@ -103,7 +103,9 @@ describe "Invoices API" do
   end
 
   it "can find all instances by customer id" do
-    customer_id = create(:invoice).customer_id
+    customer_id = 1
+    invoices = create_list(:invoice, 3)
+    Invoice.update_all(customer_id: customer_id)
 
     get "/api/v1/invoices/find_all?customer_id=#{customer_id}"
 
@@ -111,14 +113,16 @@ describe "Invoices API" do
 
     expect(response).to be_successful
 
-    expect(invoice["data"].count).to eq(1)
+    expect(invoice["data"].count).to eq(3)
 
     expected = invoice["data"].all? { |hash| hash["attributes"]["customer_id"] == customer_id }
     expect(expected).to eq(true)
   end
 
   it "can find all instances by merchant id" do
-    merchant_id = create(:invoice).merchant_id
+    merchant_id = 1
+    invoices = create_list(:invoice, 3)
+    Invoice.update_all(merchant_id: merchant_id)
 
     get "/api/v1/invoices/find_all?merchant_id=#{merchant_id}"
 
@@ -126,14 +130,17 @@ describe "Invoices API" do
 
     expect(response).to be_successful
 
-    expect(invoice["data"].count).to eq(1)
+    expect(invoice["data"].count).to eq(3)
 
     expected = invoice["data"].all? { |hash| hash["attributes"]["merchant_id"] == merchant_id }
     expect(expected).to eq(true)
   end
 
   it "can find all instances by status" do
-    status = create(:invoice).status
+    status = "shipped"
+    invoices = create_list(:invoice, 3)
+    Invoice.update_all(status: status)
+    pending = create(:invoice, status: 'pending')
 
     get "/api/v1/invoices/find_all?status=#{status}"
 
@@ -141,7 +148,7 @@ describe "Invoices API" do
 
     expect(response).to be_successful
 
-    expect(invoice["data"].count).to eq(1)
+    expect(invoice["data"].count).to eq(3)
 
     expected = invoice["data"].all? { |hash| hash["attributes"]["status"] == status }
     expect(expected).to eq(true)
