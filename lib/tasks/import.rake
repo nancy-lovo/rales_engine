@@ -20,7 +20,10 @@ namespace :import do
   task item: :environment do
     puts "Imported Item csv file to db"
     CSV.foreach('./data/items.csv', headers:true) do |row|
-      Item.create(row.to_h)
+      row_hash = row.to_h
+      row_hash['unit_price'] = (row_hash['unit_price'].to_i / 100.to_f).to_s
+
+      Item.create(row_hash)
     end
   end
 
