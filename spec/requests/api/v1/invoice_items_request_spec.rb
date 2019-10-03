@@ -164,9 +164,9 @@ describe "Invoice Items API" do
   end
 
   it "can find all instances by unit_price" do
-    unit_price = 5
+    unit_price = "10.00"
     invoice_items = create_list(:invoice_item, 3)
-    InvoiceItem.update_all(unit_price: 5)
+    InvoiceItem.update_all(unit_price: unit_price)
 
     get "/api/v1/invoice_items/find_all?unit_price=#{unit_price}"
 
