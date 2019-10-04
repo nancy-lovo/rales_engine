@@ -69,12 +69,11 @@ describe "Items API" do
 
   it "can find first instance by unit_price" do
     unit_price = create(:item).unit_price
-
     get "/api/v1/items/find?unit_price=#{unit_price}"
 
     item = JSON.parse(response.body)
     expect(response).to be_successful
-    expect(item["data"]["attributes"]["unit_price"]).to eq(unit_price)
+    expect((item["data"]["attributes"]["unit_price"].to_f * 100).to_i).to eq(unit_price)
   end
 
   it "can find first instance by merchant id" do
@@ -185,10 +184,10 @@ describe "Items API" do
   end
 
   it "can find all instances by unit_price" do
-    unit_price = "10.00"
+    unit_price = 75107
     items = create_list(:item, 3)
     Item.update_all(unit_price: unit_price)
-    item_2 = create(:item, unit_price: '15.00')
+    item_2 = create(:item, unit_price: 75108)
 
     get "/api/v1/items/find_all?unit_price=#{unit_price}"
 
@@ -198,7 +197,7 @@ describe "Items API" do
 
     expect(item["data"].count).to eq(3)
 
-    expected = item["data"].all? { |hash| hash["attributes"]["unit_price"] == unit_price }
+    expected = item["data"].all? { |hash| (hash["attributes"]["unit_price"].to_f * 100).to_i == unit_price }
     expect(expected).to eq(true)
   end
 

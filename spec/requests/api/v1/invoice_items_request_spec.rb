@@ -60,7 +60,7 @@ describe "Invoice Items API" do
 
     invoice_item = JSON.parse(response.body)
     expect(response).to be_successful
-    expect(invoice_item["data"]["attributes"]["unit_price"]).to eq(unit_price)
+    expect((invoice_item["data"]["attributes"]["unit_price"].to_f * 100).to_i).to eq(unit_price)
   end
 
   it "can find first instance by quantity" do
@@ -164,7 +164,7 @@ describe "Invoice Items API" do
   end
 
   it "can find all instances by unit_price" do
-    unit_price = "10.00"
+    unit_price = 75107
     invoice_items = create_list(:invoice_item, 3)
     InvoiceItem.update_all(unit_price: unit_price)
 
@@ -176,7 +176,7 @@ describe "Invoice Items API" do
 
     expect(invoice_item["data"].count).to eq(3)
 
-    expected = invoice_item["data"].all? { |hash| hash["attributes"]["unit_price"] == unit_price }
+    expected = invoice_item["data"].all? { |hash| (hash["attributes"]["unit_price"].to_f * 100).to_i == unit_price }
     expect(expected).to eq(true)
   end
 
