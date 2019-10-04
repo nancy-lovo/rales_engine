@@ -193,4 +193,18 @@ describe "Customers API" do
     expected = customer["data"].all? { |hash| Customer.find(hash["id"]).updated_at = updated_at }
     expect(expected).to eq(true)
   end
+
+  it "can return a random resource" do
+    customers = create_list(:customer, 5)
+
+    get "/api/v1/customers/random"
+
+    customer = JSON.parse(response.body)
+
+    expect(response).to be_successful
+
+    expect(customer["data"].count).to eq(1)
+    expect(customer["data"].first["type"]).to eq("customer")
+    expect(customer["data"].first["attributes"].keys).to eq(["id", "first_name", "last_name"])
+  end
 end
