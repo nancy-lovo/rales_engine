@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2019_10_03_152330) do
+ActiveRecord::Schema.define(version: 2019_10_03_170427) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "citext"
@@ -27,7 +27,7 @@ ActiveRecord::Schema.define(version: 2019_10_03_152330) do
     t.integer "item_id"
     t.integer "invoice_id"
     t.integer "quantity"
-    t.string "unit_price"
+    t.integer "unit_price"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
   end
@@ -43,7 +43,7 @@ ActiveRecord::Schema.define(version: 2019_10_03_152330) do
   create_table "items", force: :cascade do |t|
     t.citext "name"
     t.citext "description"
-    t.string "unit_price"
+    t.integer "unit_price"
     t.integer "merchant_id"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
