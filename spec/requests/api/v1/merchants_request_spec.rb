@@ -149,4 +149,18 @@ describe "Merchants API" do
     expected = merchant["data"].all? { |hash| Merchant.find(hash["id"]).updated_at = updated_at }
     expect(expected).to eq(true)
   end
+
+  it "can return a random resource" do
+    merchants = create_list(:merchant, 5)
+
+    get "/api/v1/merchants/random"
+
+    merchant = JSON.parse(response.body)
+
+    expect(response).to be_successful
+
+    expect(merchant["data"].count).to eq(1)
+    expect(merchant["data"].first["type"]).to eq("merchant")
+    expect(merchant["data"].first["attributes"].keys).to eq(["id", "name"])
+  end
 end

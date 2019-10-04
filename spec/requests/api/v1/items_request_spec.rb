@@ -249,4 +249,18 @@ describe "Items API" do
     expected = item["data"].all? { |hash| Item.find(hash["id"]).updated_at = updated_at }
     expect(expected).to eq(true)
   end
+
+  it "can return a random resource" do
+    items = create_list(:item, 5)
+
+    get "/api/v1/items/random"
+
+    item = JSON.parse(response.body)
+
+    expect(response).to be_successful
+
+    expect(item["data"].count).to eq(1)
+    expect(item["data"].first["type"]).to eq("item")
+    expect(item["data"].first["attributes"].keys).to eq(["id", "name", "description", "unit_price", "merchant_id"])
+  end
 end

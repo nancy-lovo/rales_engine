@@ -208,4 +208,18 @@ describe "Transactions API" do
     expected = transaction["data"].all? { |hash| Transaction.find(hash["id"]).updated_at = updated_at }
     expect(expected).to eq(true)
   end
+
+  it "can return a random resource" do
+    transactions = create_list(:transaction, 5)
+
+    get "/api/v1/transactions/random"
+
+    transaction = JSON.parse(response.body)
+
+    expect(response).to be_successful
+
+    expect(transaction["data"].count).to eq(1)
+    expect(transaction["data"].first["type"]).to eq("transaction")
+    expect(transaction["data"].first["attributes"].keys).to eq(["id", "invoice_id", "credit_card_number", "result"])
+  end
 end

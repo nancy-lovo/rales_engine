@@ -211,4 +211,18 @@ describe "Invoice Items API" do
     expected = invoice_item["data"].all? { |hash| InvoiceItem.find(hash["id"]).updated_at = updated_at }
     expect(expected).to eq(true)
   end
+
+  it "can return a random resource" do
+    invoice_items = create_list(:invoice_item, 5)
+
+    get "/api/v1/invoice_items/random"
+
+    invoice_item = JSON.parse(response.body)
+
+    expect(response).to be_successful
+
+    expect(invoice_item["data"].count).to eq(1)
+    expect(invoice_item["data"].first["type"]).to eq("invoice_item")
+    expect(invoice_item["data"].first["attributes"].keys).to eq(["id", "item_id", "invoice_id", "quantity", "unit_price"])
+  end
 end
