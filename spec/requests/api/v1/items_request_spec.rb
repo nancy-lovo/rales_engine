@@ -263,4 +263,37 @@ describe "Items API" do
     expect(item["data"].first["type"]).to eq("item")
     expect(item["data"].first["attributes"].keys).to eq(["id", "name", "description", "unit_price", "merchant_id"])
   end
+
+  it "can return a collection of associated invoice items" do
+    item = create(:item)
+    invoice_item_1 = create(:invoice_item, item_id: item.id)
+    invoice_item_2 = create(:invoice_item, item_id: item.id)
+
+    get "/api/v1/items/#{item.id}/invoice_items"
+
+    invoice_items = JSON.parse(response.body)
+
+    expect(response).to be_successful
+
+    expected_type = invoice_items["data"].all? { |hash| hash["type"] == 'invoice_item' }
+    expected_item_id = invoice_items["data"].all? { |hash| hash["attributes"]["item_id"] == item.id }
+
+    expect(invoice_items["data"].size).to eq(2)
+    expect(expected_type).to eq(true)
+    expect(expected_item_id).to eq(true)
+  end
+
+  it "can return the associated merchant" do
+    merchant = create(:merchant)
+    item = create(:item, merchant_id: merchant.id)
+
+    get "/api/v1/items/#{item.id}/merchant"
+
+    item_merchant = JSON.parse(response.body)
+
+    expect(response).to be_successful
+
+    expect(item_merchant["data"]["type"]).to eq('merchant')
+    expect(item_merchant["data"]["attributes"]["id"]).to eq(merchant.id)
+  end
 end
