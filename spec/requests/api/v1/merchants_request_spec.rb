@@ -163,4 +163,42 @@ describe "Merchants API" do
     expect(merchant["data"].first["type"]).to eq("merchant")
     expect(merchant["data"].first["attributes"].keys).to eq(["id", "name"])
   end
+
+  it "can return a collection of associated items" do
+    merchant = create(:merchant)
+    item_1 = create(:item, merchant_id: merchant.id)
+    item_2 = create(:item, merchant_id: merchant.id)
+
+    get "/api/v1/merchants/#{merchant.id}/items"
+
+    items = JSON.parse(response.body)
+
+    expect(response).to be_successful
+
+    expected_type = items["data"].all? { |hash| hash["type"] == 'item' }
+    expected_merchant_id = items["data"].all? { |hash| hash["attributes"]["merchant_id"] == merchant.id }
+
+    expect(items["data"].size).to eq(2)
+    expect(expected_type).to eq(true)
+    expect(expected_merchant_id).to eq(true)
+  end
+
+  it "can return a collection of associated invoices" do
+    merchant = create(:merchant)
+    invoice_1 = create(:invoice, merchant_id: merchant.id)
+    invoice_2 = create(:invoice, merchant_id: merchant.id)
+
+    get "/api/v1/merchants/#{merchant.id}/invoices"
+
+    invoices = JSON.parse(response.body)
+
+    expect(response).to be_successful
+
+    expected_type = invoices["data"].all? { |hash| hash["type"] == 'invoice' }
+    expected_merchant_id = invoices["data"].all? { |hash| hash["attributes"]["merchant_id"] == merchant.id }
+
+    expect(invoices["data"].size).to eq(2)
+    expect(expected_type).to eq(true)
+    expect(expected_merchant_id).to eq(true)
+  end
 end
