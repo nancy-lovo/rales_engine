@@ -225,4 +225,35 @@ describe "Invoice Items API" do
     expect(invoice_item["data"].first["type"]).to eq("invoice_item")
     expect(invoice_item["data"].first["attributes"].keys).to eq(["id", "item_id", "invoice_id", "quantity", "unit_price"])
   end
+
+  it "can return the associated invoice" do
+    customer = create(:customer)
+    invoice = create(:invoice, customer_id: customer.id)
+    invoice_item = create(:invoice_item, invoice_id: invoice.id)
+
+    get "/api/v1/invoice_items/#{invoice_item.id}/invoice"
+
+    result = JSON.parse(response.body)
+
+    expect(response).to be_successful
+
+    expect(result["data"]["type"]).to eq('invoice')
+    expect(result["data"]["attributes"]["id"]).to eq(invoice.id)
+    expect(result["data"]["attributes"]["customer_id"]).to eq(customer.id)
+  end
+
+  it "can return the associated item" do
+    item = create(:item)
+    invoice_item = create(:invoice_item, item_id: item.id)
+
+    get "/api/v1/invoice_items/#{invoice_item.id}/item"
+
+    result = JSON.parse(response.body)
+
+    expect(response).to be_successful
+
+    expect(result["data"]["type"]).to eq('item')
+    expect(result["data"]["attributes"]["id"]).to eq(item.id)
+    expect(result["data"]["attributes"]["name"]).to eq(item.name)
+  end
 end
