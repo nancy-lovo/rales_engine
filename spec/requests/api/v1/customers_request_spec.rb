@@ -207,4 +207,47 @@ describe "Customers API" do
     expect(customer["data"].first["type"]).to eq("customer")
     expect(customer["data"].first["attributes"].keys).to eq(["id", "first_name", "last_name"])
   end
+
+  it "can return a collection of associated invoices" do
+    customer_1 = create(:customer)
+    invoice_1 = create(:invoice, customer_id: customer_1.id)
+    invoice_2 = create(:invoice, customer_id: customer_1.id)
+
+    get "/api/v1/customers/#{customer_1.id}/invoices"
+
+    customer = JSON.parse(response.body)
+
+    expect(response).to be_successful
+
+    expected = customer["data"].all? { |hash| hash["type"] == 'invoices' }
+    expected = customer["data"].all? { |hash| hash["attributes"]["customer_id"] == customer_1.id }
+
+    expect(customer["data"].size).to eq(2)
+    expect(expected).to eq(true)
+  end
+
+  it "can return a collection of associated transactions" do
+    customer_1 = create(:customer)
+    invoice_1 = create(:invoice, customer_id: customer_1.id)
+    transaction_1 = create(:transaction, invoice_id: invoice_1.id)
+    transaction_2 = create(:transaction, invoice_id: invoice_1.id)
+
+    invoice_2 = create(:invoice, customer_id: customer_1.id)
+    transaction_3 = create(:transaction, invoice_id: invoice_2.id)
+
+    get "/api/v1/customers/#{customer_1.id}/transactions"
+
+    customer = JSON.parse(response.body)
+
+    expect(response).to be_successful
+
+    expected = customer["data"].all? { |hash| hash["type"] == 'transaction' }
+
+    expect(expected).to eq(true)
+    expect(customer["data"].size).to eq(3)
+
+    expect(customer["data"].first["attributes"]["invoice_id"]).to eq(invoice_1.id)
+    expect(customer["data"].second["attributes"]["invoice_id"]).to eq(invoice_1.id)
+    expect(customer["data"].last["attributes"]["invoice_id"]).to eq(invoice_2.id)
+  end
 end
