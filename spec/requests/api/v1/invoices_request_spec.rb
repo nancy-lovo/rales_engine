@@ -199,4 +199,96 @@ describe "Invoices API" do
     expect(invoice["data"].first["type"]).to eq("invoice")
     expect(invoice["data"].first["attributes"].keys).to eq(["id", "customer_id", "merchant_id", "status"])
   end
+
+  it "can return a collection of associated transactions" do
+    invoice_1 = create(:invoice)
+    transaction_1 = create(:transaction, invoice_id: invoice_1.id)
+    transaction_2 = create(:transaction, invoice_id: invoice_1.id)
+
+    get "/api/v1/invoices/#{invoice_1.id}/transactions"
+
+    transactions = JSON.parse(response.body)
+
+    expect(response).to be_successful
+
+    expected = transactions["data"].all? { |hash| hash["type"] == 'transaction' }
+
+    expect(expected).to eq(true)
+    expect(transactions["data"].size).to eq(2)
+
+    expect(transactions["data"].first["attributes"]["invoice_id"]).to eq(invoice_1.id)
+    expect(transactions["data"].second["attributes"]["invoice_id"]).to eq(invoice_1.id)
+  end
+
+  it "can return a collection of associated invoice items" do
+    invoice = create(:invoice)
+    invoice_item_1 = create(:invoice_item, invoice_id: invoice.id)
+    invoice_item_2 = create(:invoice_item, invoice_id: invoice.id)
+
+    get "/api/v1/invoices/#{invoice.id}/invoice_items"
+
+    invoice_items = JSON.parse(response.body)
+
+    expect(response).to be_successful
+
+    expected_type = invoice_items["data"].all? { |hash| hash["type"] == 'invoice_item' }
+    expected_invoice_id = invoice_items["data"].all? { |hash| hash["attributes"]["invoice_id"] == invoice.id }
+
+    expect(invoice_items["data"].size).to eq(2)
+    expect(expected_type).to eq(true)
+    expect(expected_invoice_id).to eq(true)
+  end
+
+  it "can return a collection of associated items" do
+    merchant = create(:merchant)
+    invoice = create(:invoice, merchant_id: merchant.id)
+    item_1 = create(:item, merchant_id: merchant.id)
+    item_2 = create(:item, merchant_id: merchant.id)
+
+    get "/api/v1/invoices/#{invoice.id}/items"
+
+    items = JSON.parse(response.body)
+
+    expect(response).to be_successful
+
+    expect(items["data"].size).to eq(2)
+
+    expected_type = items["data"].all? { |item| item["type"] == 'item' }
+    expect(expected_type).to eq(true)
+
+    item_1_merchant_id = items["data"].first["attributes"]["merchant_id"]
+    item_2_merchant_id = items["data"].second["attributes"]["merchant_id"]
+
+    expect(item_1_merchant_id).to eq(merchant.id)
+    expect(item_2_merchant_id).to eq(merchant.id)
+  end
+
+  it "can return the associated customer" do
+    customer = create(:customer)
+    invoice = create(:invoice, customer_id: customer.id)
+
+    get "/api/v1/invoices/#{invoice.id}/customer"
+
+    invoice_customer = JSON.parse(response.body)
+
+    expect(response).to be_successful
+
+    expect(invoice_customer["data"]["type"]).to eq('customer')
+    expect(invoice_customer["data"]["attributes"]["id"]).to eq(customer.id)
+  end
+
+  it "can return the associated merchant" do
+    merchant = create(:merchant)
+    invoice = create(:invoice, merchant_id: merchant.id)
+
+    get "/api/v1/invoices/#{invoice.id}/merchant"
+
+    invoice_merchant = JSON.parse(response.body)
+
+    expect(response).to be_successful
+
+    expect(invoice_merchant["data"]["type"]).to eq('merchant')
+    expect(invoice_merchant["data"]["attributes"]["id"]).to eq(merchant.id)
+  end
+
 end
